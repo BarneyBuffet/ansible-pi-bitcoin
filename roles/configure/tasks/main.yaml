@@ -1,0 +1,5 @@
+- name: Mount external hard drive
+  import_tasks: fstab.yaml
+
+- name: Move swap file to external hard drive
+  import_tasks: swap.yaml

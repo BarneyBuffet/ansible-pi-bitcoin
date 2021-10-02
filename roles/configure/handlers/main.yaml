@@ -1,0 +1,16 @@
+---
+- name: server reboot
+  reboot:
+    msg: "Reboot initiated by Ansible"
+
+- name: sshd restart
+  service:
+    name: sshd
+    state: restarted
+
+- name: ufw reload
+  ufw:
+    state: reloaded
+
+- name: swapfile install
+  command: sudo dphys-swapfile install

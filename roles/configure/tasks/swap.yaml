@@ -1,0 +1,13 @@
+- name: Install dphys-swapfile to set swap file to external drive
+  ansible.builtin.apt: 
+    name: dphys-swapfile 
+    update_cache: yes 
+    state: latest
+
+- name: "Set swap file location to {{ SSD_MOUNT_POINT }}/swapfile"
+  ansible.builtin.lineinfile:
+    path: /etc/dphys-swapfile
+    state: present
+    regexp: "^CONF_SWAPFILE="
+    line: "CONF_SWAPFILE={{ SSD_MOUNT_POINT }}/swapfile"
+  notify: swapfile install
