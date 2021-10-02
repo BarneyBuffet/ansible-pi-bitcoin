@@ -1,0 +1,24 @@
+---
+- name: Allow RFC1918 networks SSH connections and enable UFW - anti lockout rule
+  community.general.ufw:
+    state: enabled
+    rule: allow
+    name: OpenSSH
+    src: '{{ item }}'
+    comment: "ALLOW RFC1918 networks SSH port access - anti lockout"
+  loop:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+  notify: ufw reload
+
+- name: Don't let IPv6 through firewall
+  ansible.builtin.lineinfile:
+    path: /etc/default/ufw
+    state: present
+    regexp: "^IPV6="
+    line: "IPV6=no"
+  notify: ufw reload
+
+## References
+## https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html

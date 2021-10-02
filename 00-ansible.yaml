@@ -1,0 +1,10 @@
+
+# 00-ansible.yaml
+# ansible-playbook 00-ansible.yaml -i inventory/cluster-1/hosts.ini --ask-become-pass
+---
+## Setup Ansible user on server
+- hosts: bitcoin
+  gather_facts: no
+  become: yes
+  roles:
+    - role: ansible

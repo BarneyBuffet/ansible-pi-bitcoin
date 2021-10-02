@@ -1,0 +1,15 @@
+- name: Create default user
+  import_tasks: default_user.yaml
+
+- name: Update operating system
+  import_tasks: update.yaml
+
+- name: Harden ssh login
+  import_tasks: harden_ssh.yaml
+
+- name: Setup firewall
+  import_tasks: firewall.yaml
+
+## References
+## https://linoxide.com/ultimate-guide-secure-ubuntu/
+## https://www.maketecheasier.com/secure-newly-installed-ubuntu/

@@ -1,0 +1,19 @@
+---
+- name: "Add default user {{DEFAULT_USER}} to system"
+  ansible.builtin.user:
+    name: "{{ DEFAULT_USER }}"
+    password: "{{ 'DEFAULT_PASSWORD' | password_hash('sha512') }}"
+    update_password: on_create
+    shell: /bin/bash
+    groups: sudo
+    append: yes
+
+- name: "Add ssh public key for {{DEFAULT_USER}}"
+  ansible.posix.authorized_key:
+    user: "{{DEFAULT_USER}}"
+    key: "{{ DEFAULT_USER_SSH_KEY }}"
+    state: present
+
+## References
+## https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
+## https://docs.ansible.com/ansible/latest/collections/ansible/posix/authorized_key_module.html

@@ -1,0 +1,6 @@
+[sshd]
+enabled   = true
+maxretry  = 3
+findtime  = 1d
+bantime   = 4w
+ignoreip  = 127.0.0.1/8 192.168.0.0/16
