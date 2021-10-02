@@ -1,0 +1,56 @@
+---
+- name: "Add {{DEFAULT_USER}} to debian-tor"
+  user:
+    name: '{{ DEFAULT_USER }}'
+    groups: 
+      - debian-tor
+    append: yes
+
+- name: Copy torrc to and overwrite /etc/tor/torrc
+  ansible.builtin.copy:
+    src: torrc
+    dest: /etc/tor/torrc
+    owner: root
+    group: root
+    mode: u+rw,g+r,o+r
+  notify: tor restart
+
+- name: "Copy nyxrc to /home/{{ DEFAULT_USER }}/.nyx/config"
+  ansible.builtin.copy:
+    src: torrc
+    dest: "/home/{{ DEFAULT_USER }}/.nyx/config"
+    owner: "{{ DEFAULT_USER }}"
+    group: "{{ DEFAULT_USER }}"
+    mode: u+rw,g+r
+
+# - name: "Create Tor socket directory at /var/run/tor"
+#   file:
+#     path: "/var/run/tor"
+#     state: directory
+#     owner: "debian-tor"
+#     group: "debian-tor"
+#     mode: u+rw,g+r
+
+# - name: "Set Tor socks socket to /var/run/tor/socks.sock"
+#   ansible.builtin.lineinfile:
+#     path: /etc/tor/torrc
+#     state: present
+#     regexp: "^SocksPort unix:"
+#     line: "SocksPort unix:/var/run/tor/socks.sock"
+#   notify: tor restart
+
+# - name: "Set Tor control socket to /var/run/tor/control.sock"
+#   ansible.builtin.lineinfile:
+#     path: /etc/tor/torrc
+#     state: present
+#     regexp: "^ControlSocket unix:"
+#     line: "ControlSocket unix:/var/run/tor/socks.sock"
+#   notify: tor restart
+
+# - name: "Set Tor cookie to {{ TOR_DIR }}/control_auth_cookie"
+#   ansible.builtin.lineinfile:
+#     path: /etc/tor/torrc
+#     state: present
+#     regexp: "^CookieAuthFile " #Space at end needed
+#     line: "CookieAuthFile {{ TOR_DIR }}/control_auth_cookie"
+#   notify: tor restart

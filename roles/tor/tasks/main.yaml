@@ -1,0 +1,5 @@
+- name: Install Tor proxy
+  import_tasks: install.yaml
+
+- name: Configure Tor proxy
+  import_tasks: configure.yaml

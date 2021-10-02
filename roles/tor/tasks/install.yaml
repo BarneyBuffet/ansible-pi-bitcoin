@@ -1,0 +1,42 @@
+---
+- name: Install atp https dependency
+  ansible.builtin.apt: 
+    name: apt-transport-https 
+    update_cache: yes 
+    state: latest
+
+- name: Get distrubtion name
+  shell: | 
+    lsb_release -c -s
+  changed_when: false
+  register: distrubtion
+
+- name: Add an Apt signing key to a specific keyring file
+  ansible.builtin.apt_key:
+    url: https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc
+    keyring: /usr/share/keyrings/tor-archive-keyring.gpg
+    state: present
+
+- name: Add Tor binary repository
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org {{distrubtion.stdout}} main
+    state: present
+    update_cache: yes
+
+- name: Add Tor source repository
+  ansible.builtin.apt_repository:
+    repo: deb-src [signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org {{distrubtion.stdout}} main
+    state: present
+    update_cache: yes
+
+- name: Install tor, nyx and tor debian keyring
+  ansible.builtin.apt: 
+    name: 
+      - tor 
+      - nyx
+      - deb.torproject.org-keyring
+    update_cache: yes 
+    state: latest
+
+## References
+## https://support.torproject.org/apt/tor-deb-repo/
