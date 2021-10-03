@@ -15,3 +15,16 @@
 
 - name: "Delete the password for {{ ANSIBLE_USER }} so they must use ssh pub/private"
   ansible.builtin.command: "passwd -d {{ ANSIBLE_USER }}"
+
+- name: "Set hostname {{BITCOIN_HOSTNAME}} in /etc/hostname"
+  ansible.builtin.hostname:
+    name: "{{ BITCOIN_HOSTNAME }}"
+  notify: server reboot
+    
+- name: "Add hostname {{BITCOIN_HOSTNAME}} in /etc/hosts"
+  ansible.builtin.lineinfile:
+    path: '/etc/hosts'
+    state: present
+    regexp: '^127\.0\.0\.1[ \t]+localhost'
+    line: '127.0.0.1 localhost {{ BITCOIN_HOSTNAME }}'
+  notify: server reboot
