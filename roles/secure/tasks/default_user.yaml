@@ -2,7 +2,7 @@
 - name: "Add default user {{DEFAULT_USER}} to system"
   ansible.builtin.user:
     name: "{{ DEFAULT_USER }}"
-    password: "{{ 'DEFAULT_PASSWORD' | password_hash('sha512') }}"
+    password: "{{ DEFAULT_PASSWORD|password_hash('sha512') }}"
     update_password: on_create
     shell: /bin/bash
     groups: sudo
@@ -13,6 +13,12 @@
     user: "{{DEFAULT_USER}}"
     key: "{{ DEFAULT_USER_SSH_KEY }}"
     state: present
+
+- name: Suspend default ubuntu account
+  ansible.builtin.user:
+    name: ubuntu
+    state: present
+    password: '!'  # '!' Suspends Linux accounts
 
 ## References
 ## https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html
