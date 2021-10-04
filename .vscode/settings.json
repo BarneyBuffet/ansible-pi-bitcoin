@@ -1,12 +1,17 @@
 {
   "cSpell.words": [
+    "aarch",
     "bantime",
     "blkid",
     "distrubtion",
     "dphys",
     "findtime",
     "fstype",
+    "gnueabihf",
+    "hkps",
     "ignoreip",
+    "Laan",
+    "laanwj",
     "maxretry",
     "noatime",
     "nodiratime",
@@ -16,9 +21,11 @@
     "NOPASSWD",
     "nosuid",
     "nouser",
+    "openpgp",
     "passno",
     "posix",
     "swapfile",
-    "torproject"
+    "torproject",
+    "Wladimir"
   ]
 }
