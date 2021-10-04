@@ -1,0 +1,82 @@
+- name: "Create temporary download directory"
+  file:
+    path: "{{ BITCOIN_CORE_TMP_DIR }}"
+    state: directory
+
+# https://bitcoincore.org/bin/bitcoin-core-22.0/bitcoin-22.0-aarch64-linux-gnu.tar.gz
+
+- name: Download Bitcoin Core
+  ansible.builtin.get_url:
+    url: "https://bitcoincore.org/bin/bitcoin-core-{{ BITCOIN_CORE_VER }}/bitcoin-{{ BITCOIN_CORE_VER }}-aarch64-linux-gnu.tar.gz"
+    dest: "{{ BITCOIN_CORE_TMP_DIR }}/bitcoin-{{ BITCOIN_CORE_VER }}-aarch64-linux-gnu.tar.gz"
+
+- name: Download Bitcoin Core signature
+  ansible.builtin.get_url:
+    url: "https://bitcoincore.org/bin/bitcoin-core-{{ BITCOIN_CORE_VER }}/SHA256SUMS"
+    dest: "{{ BITCOIN_CORE_TMP_DIR }}/SHA256SUMS"
+
+- name: Download Bitcoin Core signature
+  ansible.builtin.get_url:
+    url: "https://bitcoincore.org/bin/bitcoin-core-{{ BITCOIN_CORE_VER }}/SHA256SUMS.asc"
+    dest: "{{ BITCOIN_CORE_TMP_DIR }}/SHA256SUMS.asc"
+
+- name: Download Bitcoin Core time signature
+  ansible.builtin.get_url:
+    url: "https://bitcoincore.org/bin/bitcoin-core-{{ BITCOIN_CORE_VER }}/SHA256SUMS.ots"
+    dest: "{{ BITCOIN_CORE_TMP_DIR }}/SHA256SUMS.ots"
+
+- name: Download PGP keys
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/bitcoin/bitcoin/master/contrib/builder-keys/keys.txt"
+    dest: "{{ BITCOIN_CORE_TMP_DIR }}/keys.txt"
+
+- name: Verify that the checksums file is PGP signed
+  shell: |
+    cd {{ BITCOIN_CORE_TMP_DIR }}
+    sha256sum --ignore-missing --check SHA256SUMS
+
+## https://github.com/bitcoin/bitcoin/tree/master/contrib/builder-keys
+- name: Refresh PGP keys
+  command: gpg --refresh-keys
+
+- name: Import PGP keys from hkps://keyserver.ubuntu.com
+  command: gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys {{BITCOIN_CORE_KEYS_1}}
+  # shell: |
+  #   while read fingerprint keyholder_name; do gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys ${fingerprint}; done < {{ BITCOIN_CORE_TMP_DIR }}/keys.txt
+
+- name: Import PGP keys from hkps://keys.openpgp.org
+  command: gpg --keyserver hkps://keys.openpgp.org --recv-keys {{BITCOIN_CORE_KEYS_2}}
+  # shell: |
+  #   while read fingerprint keyholder_name; do gpg --keyserver hkps://keys.openpgp.org --recv-keys ${fingerprint}; done < {{ BITCOIN_CORE_TMP_DIR }}/keys.txt
+
+- name: Verify that the checksums file is PGP signed
+  shell: |
+    cd {{ BITCOIN_CORE_TMP_DIR }}
+    gpg --verify SHA256SUMS.asc SHA256SUMS
+
+- name: "Extract bitcoin-{{ BITCOIN_CORE_VER }}-aarch64-linux-gnu.tar.gz"
+  ansible.builtin.unarchive:
+    src: "{{ BITCOIN_CORE_TMP_DIR }}/bitcoin-{{ BITCOIN_CORE_VER }}-aarch64-linux-gnu.tar.gz"
+    remote_src: yes
+    dest: "{{ BITCOIN_CORE_TMP_DIR }}"
+
+- name: Delete bitcoin-qt before installing
+  file:
+    state: absent
+    path: "{{ BITCOIN_CORE_TMP_DIR }}/bitcoin-{{ BITCOIN_CORE_VER }}/bin/bitcoin-qt"
+
+- name: "Install Bitcoin Core"
+  shell: |
+    sudo install -m 0755 -o root -g root -t /usr/local/bin {{ BITCOIN_CORE_TMP_DIR }}/bitcoin-{{ BITCOIN_CORE_VER }}/bin/*
+
+# - name: "Install Bitcoin Core"
+#   ansible.builtin.copy:
+#     src: "{{ BITCOIN_CORE_TMP_DIR }}/bitcoin-{{ BITCOIN_CORE_VER }}/bin/"
+#     remote_src: yes
+#     dest: /usr/local/bin
+#     owner: root
+#     group: root
+#     mode: '0755'
+
+## https://bitcoincore.org/bin/bitcoin-core-22.0/bitcoin-22.0-x86_64-linux-gnu.tar.gz
+## https://bitcoincore.org/en/download/#verify-your-download

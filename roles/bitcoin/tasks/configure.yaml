@@ -1,0 +1,52 @@
+- name: "Create {{ BITCOIN_CORE_USER }} system group"
+  ansible.builtin.group:
+    name: "{{ BITCOIN_CORE_USER }}"
+    state: present
+
+- name: "Create {{ BITCOIN_CORE_USER }} system user"
+  ansible.builtin.user:
+    name: "{{ BITCOIN_CORE_USER }}"
+    group: "{{ BITCOIN_CORE_USER }}"
+    system: yes
+    state: present
+
+- name: "Add {{ DEFAULT_USER }} to {{ BITCOIN_CORE_USER }} group"
+  ansible.builtin.user:
+    name: '{{ DEFAULT_USER }}'
+    groups: 
+      - "{{ BITCOIN_CORE_USER }}"
+    append: yes
+
+- name: "Create bitcoin data directory at {{ BITCOIN_CORE_DIR }}"
+  ansible.builtin.file:
+    path: "{{ BITCOIN_CORE_DIR }}"
+    state: directory
+    owner: "{{ BITCOIN_CORE_USER }}"
+    group: "{{ BITCOIN_CORE_USER }}"
+    mode: u+rw,g+rw
+
+- name: "Link {{ BITCOIN_CORE_DIR }} to /home/{{ DEFAULT_USER }}/.bitcoin"
+  ansible.builtin.file:
+    src: "{{ BITCOIN_CORE_DIR }}"
+    dest: "/home/{{ DEFAULT_USER }}/.bitcoin"
+    owner: "{{ BITCOIN_CORE_USER }}"
+    group: "{{ BITCOIN_CORE_USER }}"
+    state: link
+
+- name: "Copy bitcoin.conf to {{ BITCOIN_CORE_DIR }}/bitcoin.conf"
+  ansible.builtin.template:
+    src: bitcoin.conf.j2
+    dest: "{{ BITCOIN_CORE_DIR }}/bitcoin.conf"
+    owner: "{{ BITCOIN_CORE_USER }}"
+    group: "{{ BITCOIN_CORE_USER }}"
+    mode: u+rw,g+rw
+  notify: bitcoind restart
+
+- name: "Copy bitcoind.service to /etc/systemd/system/bitcoind.service"
+  ansible.builtin.template:
+    src: bitcoind.service.j2
+    dest: "/etc/systemd/system/bitcoind.service"
+    owner: "{{ BITCOIN_CORE_USER }}"
+    group: "{{ BITCOIN_CORE_USER }}"
+    mode: u+rw,g+rw
+  notify: bitcoind restart

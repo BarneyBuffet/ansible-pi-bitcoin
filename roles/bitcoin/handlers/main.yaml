@@ -1,0 +1,9 @@
+---
+- name: bitcoind restart
+  service:
+    name: bitcoind
+    state: restarted
+
+- name: server reboot
+  reboot:
+    msg: "Reboot initiated by Ansible"

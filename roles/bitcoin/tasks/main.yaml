@@ -1,0 +1,5 @@
+- name: Install Bitcoin Core
+  import_tasks: install.yaml
+
+- name: Configure bitcoin core
+  import_tasks: configure.yaml
