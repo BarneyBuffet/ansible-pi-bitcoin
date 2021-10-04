@@ -15,6 +15,14 @@
     mode: u+rw,g+r,o+r
   notify: tor restart
 
+- name: "Create /home/{{ DEFAULT_USER }}/.nyx directory"
+  file:
+    path: "/home/{{ DEFAULT_USER }}/.nyx"
+    state: directory
+    owner: "{{ DEFAULT_USER }}"
+    group: "{{ DEFAULT_USER }}"
+    mode: u+rw
+
 - name: "Copy nyxrc to /home/{{ DEFAULT_USER }}/.nyx/config"
   ansible.builtin.copy:
     src: torrc
@@ -25,11 +33,19 @@
 
 # - name: "Create Tor socket directory at /var/run/tor"
 #   file:
-#     path: "/var/run/tor"
+#     path: "/tmp/.tor"
 #     state: directory
 #     owner: "debian-tor"
 #     group: "debian-tor"
-#     mode: u+rw,g+r
+#     mode: u+rw,g+rw,o+rw
+
+# - name: "Create file socket at /var/run/tor"
+#   file:
+#     path: "/tmp/.tor/socks.socket"
+#     state: file
+#     owner: "debian-tor"
+#     group: "debian-tor"
+#     mode: u+rw,g+rw,o+rw
 
 # - name: "Set Tor socks socket to /var/run/tor/socks.sock"
 #   ansible.builtin.lineinfile:
